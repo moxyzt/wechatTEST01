@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太原按摩养生馆 - 在线预约</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        // 太原按摩店预约系统 - 完整HTML版本
+        const SERVICES = [
+          { 
+            id: "massage60", 
+            label: "全身按摩", 
+            duration: "60 min", 
+            schedule: "Mon, Wed, Fri",
+            minutes: 60, 
+            price: 128, 
+            icon: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=40&h=40&fit=crop&crop=center",
+            image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=300&h=200&fit=crop&crop=center"
+          },
+          { 
+            id: "footbath", 
+            label: "足浴", 
+            duration: "45 min", 
+            schedule: "Every Day",
+            minutes: 45, 
+            price: 88, 
+            icon: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=40&h=40&fit=crop&crop=center",
+            image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop&crop=center"
+          },
+          { 
+            id: "cupping", 
+            label: "拔罐", 
+            duration: "30 min", 
+            schedule: "Every Evening",
+            minutes: 30, 
+            price: 68, 
+            icon: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=40&h=40&fit=crop&crop=center",
+            image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop&crop=center"
+          },
+        ];
+
+        const THERAPISTS = [
+          { 
+            id: "any", 
+            name: "都行", 
+            avatar: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=120&h=120&fit=crop&crop=face",
+            specialty: "自动分配",
+            time: "Available Now"
+          },
+          { 
+            id: "liMaster", 
+            name: "李师傅", 
+            avatar: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120&h=120&fit=crop&crop=face", 
+            specialty: "推拿专家",
+            time: "10:00 AM"
+          },
+          { 
+            id: "wangSifu", 
+            name: "王师傅", 
+            avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&crop=face", 
+            specialty: "足疗专家",
+            time: "2:00 PM"
+          },
+        ];
+
+        function pad(n) { return n.toString().padStart(2, "0"); }
+
+        function TaiyuanMassageBooking() {
+          const todayStr = useMemo(() => {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = pad(d.getMonth() + 1);
+            const dd = pad(d.getDate());
+            return `${yyyy}-${mm}-${dd}`;
+          }, []);
+
+          const [isLoggedIn, setIsLoggedIn] = useState(false);
+          const [userName, setUserName] = useState("Eva");
+          const [selectedServiceIds, setSelectedServiceIds] = useState([]);
+          const [therapistId, setTherapistId] = useState("");
+          const [pickedTime, setPickedTime] = useState("");
+          const [error, setError] = useState("");
+          const [successMsg, setSuccessMsg] = useState("");
+          const [currentStep, setCurrentStep] = useState("services");
+
+          const totalServiceMinutes = useMemo(() => {
+            return selectedServiceIds
+              .map(id => SERVICES.find(s => s.id === id)?.minutes || 0)
+              .reduce((a, b) => a + b, 0);
+          }, [selectedServiceIds]);
+
+          const totalPrice = useMemo(() => {
+            return selectedServiceIds
+              .map(id => SERVICES.find(s => s.id === id)?.price || 0)
+              .reduce((a, b) => a + b, 0);
+          }, [selectedServiceIds]);
+
+          function handleLogin() {
+            setIsLoggedIn(true);
+          }
+
+          function toggleService(id) {
+            setSelectedServiceIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+            if (selectedServiceIds.length === 0 && !selectedServiceIds.includes(id)) {
+              setCurrentStep("therapist");
+            }
+          }
+
+          function selectTherapist(id) {
+            setTherapistId(id);
+            setCurrentStep("time");
+          }
+
+          function selectTime(time) {
+            setPickedTime(time);
+            setCurrentStep("booking");
+          }
+
+          function handleSubmit() {
+            setError("");
+            setSuccessMsg("");
+            
+            if (selectedServiceIds.length === 0) { setError("请选择服务项目"); return; }
+            if (!therapistId) { setError("请选择理疗师"); return; }
+            if (!pickedTime) { setError("请选择时间"); return; }
+
+            const therapistName = THERAPISTS.find(t => t.id === therapistId)?.name;
+            const serviceNames = selectedServiceIds.map(id => SERVICES.find(s=>s.id===id)?.label).filter(Boolean);
+
+            setSuccessMsg(`预约成功！${serviceNames.join("、")} · ${therapistName} · ${pickedTime} · ¥${totalPrice}`);
+            
+            // 重置表单
+            setSelectedServiceIds([]);
+            setTherapistId("");
+            setPickedTime("");
+            setCurrentStep("services");
+          }
+
+          // 根据当前步骤渲染不同内容
+          const renderMainContent = () => {
+            if (currentStep === "services") {
+              return React.createElement('div', { className: "space-y-6" }, [
+                // Hero Card
+                React.createElement('div', {
+                  key: 'hero',
+                  className: "relative rounded-[32px] overflow-hidden text-white h-80",
+                  style: {
+                    background: 'linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url("https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&h=400&fit=crop&crop=center")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }
+                }, [
+                  React.createElement('div', { key: 'overlay', className: "absolute inset-0 bg-gradient-to-br from-black/40 to-transparent" }),
+                  React.createElement('div', { key: 'content', className: "relative p-8 h-full flex flex-col justify-between" }, [
+                    React.createElement('div', { key: 'dots', className: "text-right" }, 
+                      React.createElement('div', { className: "flex items-center justify-center w-8 h-8" }, [
+                        React.createElement('div', { key: '1', className: "w-1 h-1 bg-white/60 rounded-full mx-0.5" }),
+                        React.createElement('div', { key: '2', className: "w-1 h-1 bg-white/60 rounded-full mx-0.5" }),
+                        React.createElement('div', { key: '3', className: "w-1 h-1 bg-white/60 rounded-full mx-0.5" })
+                      ])
+                    ),
+                    React.createElement('div', { key: 'text' }, [
+                      React.createElement('div', { key: 'subtitle', className: "text-sm text-white/80 mb-2" }, "太原按摩馆"),
+                      React.createElement('h1', { key: 'title', className: "text-2xl font-medium mb-4 leading-tight" }, [
+                        "发现一个全新的",
+                        React.createElement('br', { key: 'br' }),
+                        "健康养生世界"
+                      ]),
+                      React.createElement('div', { key: 'cta', className: "flex items-center gap-4" }, [
+                        React.createElement('button', {
+                          key: 'btn',
+                          className: "bg-white/20 backdrop-blur-sm border border-white/30 rounded-full w-12 h-12 flex items-center justify-center",
+                          onClick: () => setCurrentStep("services")
+                        }, 
+                          React.createElement('svg', { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" }, 
+                            React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M13 7l5 5m0 0l-5 5m5-5H6" })
+                          )
+                        ),
+                        React.createElement('span', { key: 'text', className: "text-white/80 text-sm" }, "立即预约")
+                      ])
+                    ])
+                  ])
+                ]),
+
+                // Services Grid
+                React.createElement('div', { key: 'services', className: "space-y-4" }, [
+                  React.createElement('div', { key: 'header', className: "flex items-center justify-between" },
+                    React.createElement('h2', { className: "text-lg font-medium text-gray-900" }, "选择服务项目")
+                  ),
+                  React.createElement('div', { key: 'list', className: "space-y-3" }, 
+                    SERVICES.map((service, index) => {
+                      const isSelected = selectedServiceIds.includes(service.id);
+                      const isLarge = index === 0;
+                      
+                      return React.createElement('button', {
+                        key: service.id,
+                        onClick: () => toggleService(service.id),
+                        className: `w-full p-4 rounded-3xl border transition-all ${
+                          isSelected 
+                            ? 'bg-gray-900 text-white border-gray-900' 
+                            : 'bg-white/70 backdrop-blur-sm text-gray-900 border-gray-200 hover:border-gray-300'
+                        } ${isLarge ? 'h-32' : 'h-20'}`
+                      }, 
+                        React.createElement('div', { className: "flex items-center justify-between h-full" }, [
+                          React.createElement('div', { key: 'left', className: "flex items-center gap-4" }, [
+                            React.createElement('div', {
+                              key: 'icon',
+                              className: `flex items-center justify-center rounded-2xl ${
+                                isSelected ? 'bg-white/20' : 'bg-gray-100'
+                              } ${isLarge ? 'w-16 h-16' : 'w-12 h-12'}`
+                            },
+                              React.createElement('img', {
+                                src: service.icon,
+                                alt: service.label,
+                                className: `object-cover rounded-xl ${isLarge ? 'w-12 h-12' : 'w-8 h-8'}`
+                              })
+                            ),
+                            React.createElement('div', { key: 'text', className: "text-left" }, [
+                              React.createElement('h3', {
+                                key: 'name',
+                                className: `font-medium ${isLarge ? 'text-lg' : 'text-base'}`
+                              }, service.label),
+                              React.createElement('p', {
+                                key: 'schedule',
+                                className: `${isSelected ? 'text-white/70' : 'text-gray-500'} text-sm`
+                              }, service.schedule)
+                            ])
+                          ]),
+                          React.createElement('div', { key: 'right', className: "text-right" }, [
+                            React.createElement('div', {
+                              key: 'duration',
+                              className: `font-semibold ${isLarge ? 'text-xl' : 'text-lg'}`
+                            }, service.duration),
+                            React.createElement('div', {
+                              key: 'price',
+                              className: `text-sm ${isSelected ? 'text-white/70' : 'text-gray-500'}`
+                            }, `¥${service.price}`)
+                          ])
+                        ])
+                      );
+                    })
+                  )
+                ])
+              ]);
+            }
+
+            if (currentStep === "therapist") {
+              return React.createElement('div', { className: "space-y-6" }, [
+                React.createElement('div', { key: 'header', className: "flex items-center gap-4" }, [
+                  React.createElement('button', {
+                    key: 'back',
+                    onClick: () => setCurrentStep("services"),
+                    className: "w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
+                  },
+                    React.createElement('svg', { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                      React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 19l-7-7 7-7" })
+                    )
+                  ),
+                  React.createElement('h2', { key: 'title', className: "text-xl font-medium text-gray-900" }, "选择理疗师")
+                ]),
+
+                React.createElement('div', { key: 'list', className: "space-y-4" },
+                  THERAPISTS.map(therapist =>
+                    React.createElement('button', {
+                      key: therapist.id,
+                      onClick: () => selectTherapist(therapist.id),
+                      className: "w-full p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-gray-200 hover:border-gray-300 transition-all text-left"
+                    },
+                      React.createElement('div', { className: "flex items-center justify-between" }, [
+                        React.createElement('div', { key: 'left', className: "flex items-center gap-4" }, [
+                          React.createElement('img', {
+                            key: 'avatar',
+                            src: therapist.avatar,
+                            alt: therapist.name,
+                            className: "w-16 h-16 rounded-full object-cover"
+                          }),
+                          React.createElement('div', { key: 'info' }, [
+                            React.createElement('h3', { key: 'name', className: "font-medium text-lg text-gray-900" }, therapist.name),
+                            React.createElement('p', { key: 'specialty', className: "text-gray-500 text-sm" }, therapist.specialty)
+                          ])
+                        ]),
+                        React.createElement('div', { key: 'right', className: "text-right" }, [
+                          React.createElement('div', { key: 'time', className: "text-lg font-medium text-gray-900" }, therapist.time),
+                          React.createElement('div', { key: 'status', className: "text-sm text-gray-500" }, "Available")
+                        ])
+                      ])
+                    )
+                  )
+                )
+              ]);
+            }
+
+            if (currentStep === "time") {
+              return React.createElement('div', { className: "space-y-6" }, [
+                React.createElement('div', { key: 'header', className: "flex items-center gap-4" }, [
+                  React.createElement('button', {
+                    key: 'back',
+                    onClick: () => setCurrentStep("therapist"),
+                    className: "w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
+                  },
+                    React.createElement('svg', { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                      React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 19l-7-7 7-7" })
+                    )
+                  ),
+                  React.createElement('h2', { key: 'title', className: "text-xl font-medium text-gray-900" }, "选择时间")
+                ]),
+
+                React.createElement('div', { key: 'calendar', className: "bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-gray-200" }, [
+                  React.createElement('div', { key: 'header', className: "flex items-center justify-between mb-6" }, [
+                    React.createElement('h3', { key: 'title', className: "text-lg font-medium" }, "今日可约时间"),
+                    React.createElement('div', { key: 'legend', className: "flex items-center gap-2" }, [
+                      React.createElement('div', { key: 'dot', className: "w-2 h-2 bg-gray-900 rounded-full" }),
+                      React.createElement('span', { key: 'text', className: "text-sm text-gray-600" }, "可约")
+                    ])
+                  ]),
+                  React.createElement('div', { key: 'grid', className: "grid grid-cols-3 gap-3" },
+                    ['9:00', '10:30', '12:00', '14:00', '15:30', '17:00', '18:30', '20:00'].map(time =>
+                      React.createElement('button', {
+                        key: time,
+                        onClick: () => selectTime(time),
+                        className: "p-4 rounded-2xl bg-white border border-gray-200 hover:border-gray-900 hover:bg-gray-900 hover:text-white transition-all text-center"
+                      }, [
+                        React.createElement('div', { key: 'time', className: "font-medium" }, time),
+                        React.createElement('div', { key: 'status', className: "text-xs text-gray-500" }, "可约")
+                      ])
+                    )
+                  )
+                ])
+              ]);
+            }
+
+            if (currentStep === "booking") {
+              const selectedServices = selectedServiceIds.map(id => SERVICES.find(s => s.id === id)).filter(Boolean);
+              const selectedTherapist = THERAPISTS.find(t => t.id === therapistId);
+              
+              return React.createElement('div', { className: "space-y-6" }, [
+                React.createElement('div', { key: 'header', className: "flex items-center gap-4" }, [
+                  React.createElement('button', {
+                    key: 'back',
+                    onClick: () => setCurrentStep("time"),
+                    className: "w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"
+                  },
+                    React.createElement('svg', { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
+                      React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 19l-7-7 7-7" })
+                    )
+                  ),
+                  React.createElement('h2', { key: 'title', className: "text-xl font-medium text-gray-900" }, "确认预约")
+                ]),
+
+                React.createElement('div', { key: 'summary', className: "bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-gray-200" }, [
+                  React.createElement('h3', { key: 'title', className: "font-medium text-lg mb-4" }, "预约详情"),
+                  React.createElement('div', { key: 'details', className: "space-y-4" }, [
+                    React.createElement('div', { key: 'services', className: "flex justify-between items-center py-2 border-b border-gray-200" }, [
+                      React.createElement('span', { key: 'label', className: "text-gray-600" }, "服务项目"),
+                      React.createElement('span', { key: 'value', className: "font-medium" }, selectedServices.map(s => s.label).join(', '))
+                    ]),
+                    React.createElement('div', { key: 'therapist', className: "flex justify-between items-center py-2 border-b border-gray-200" }, [
+                      React.createElement('span', { key: 'label', className: "text-gray-600" }, "理疗师"),
+                      React.createElement('span', { key: 'value', className: "font-medium" }, selectedTherapist?.name)
+                    ]),
+                    React.createElement('div', { key: 'time', className: "flex justify-between items-center py-2 border-b border-gray-200" }, [
+                      React.createElement('span', { key: 'label', className: "text-gray-600" }, "时间"),
+                      React.createElement('span', { key: 'value', className: "font-medium" }, pickedTime)
+                    ]),
+                    React.createElement('div', { key: 'duration', className: "flex justify-between items-center py-2 border-b border-gray-200" }, [
+                      React.createElement('span', { key: 'label', className: "text-gray-600" }, "时长"),
+                      React.createElement('span', { key: 'value', className: "font-medium" }, `${totalServiceMinutes} 分钟`)
+                    ]),
+                    React.createElement('div', { key: 'price', className: "flex justify-between items-center py-2" }, [
+                      React.createElement('span', { key: 'label', className: "text-gray-600" }, "总价"),
+                      React.createElement('span', { key: 'value', className: "font-bold text-xl" }, `¥${totalPrice}`)
+                    ])
+                  ])
+                ]),
+
+                React.createElement('button', {
+                  key: 'confirm',
+                  onClick: handleSubmit,
+                  className: "w-full bg-gray-900 text-white font-medium py-4 rounded-2xl hover:bg-gray-800 transition-colors"
+                }, "确认预约")
+              ]);
+            }
+          };
+
+          return React.createElement('div', {
+            style: {
+              background: 'linear-gradient(135deg, #f5f1eb 0%, #e8ddd4 25%, #ddd0c4 50%, #d2c3b4 75%, #c7b6a4 100%)',
+              minHeight: '100vh'
+            }
+          }, [
+            // Header
+            React.createElement('header', {
+              key: 'header',
+              className: "sticky top-0 z-50 backdrop-blur-xl bg-white/80"
+            },
+              React.createElement('div', { className: "max-w-lg mx-auto px-6 py-4 flex items-center justify-between" }, [
+                React.createElement('div', { key: 'left', className: "flex items-center gap-3" }, [
+                  React.createElement('img', {
+                    key: 'avatar',
+                    src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
+                    alt: "User",
+                    className: "w-10 h-10 rounded-full object-cover"
+                  }),
+                  React.createElement('div', { key: 'info' }, [
+                    React.createElement('div', { key: 'name', className: "text-sm text-gray-600" }, `Hello, ${userName}`),
+                    React.createElement('div', { key: 'emoji', className: "text-xs text-gray-500" }, "😊")
+                  ])
+                ]),
+                React.createElement('div', { key: 'right', className: "flex items-center justify-center w-8 h-8" }, [
+                  React.createElement('div', { key: '1', className: "w-1 h-1 bg-gray-400 rounded-full mx-0.5" }),
+                  React.createElement('div', { key: '2', className: "w-1 h-1 bg-gray-400 rounded-full mx-0.5" }),
+                  React.createElement('div', { key: '3', className: "w-1 h-1 bg-gray-400 rounded-full mx-0.5" })
+                ])
+              ])
+            ),
+
+            // Main Content
+            React.createElement('main', { key: 'main', className: "max-w-lg mx-auto px-6 py-6" }, [
+              renderMainContent(),
+              
+              // Messages
+              error && React.createElement('div', {
+                key: 'error',
+                className: "mt-4 bg-red-50 border border-red-200 rounded-2xl p-4"
+              }, React.createElement('p', { className: "text-red-700 text-sm" }, error)),
+              
+              successMsg && React.createElement('div', {
+                key: 'success',
+                className: "mt-4 bg-green-50 border border-green-200 rounded-2xl p-4"
+              }, React.createElement('p', { className: "text-green-700 text-sm" }, successMsg))
+            ])
+          ]);
+        }
+
+        // 渲染应用
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(TaiyuanMassageBooking));
+    </script>
+</body>
+</html>
