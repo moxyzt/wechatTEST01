@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫码向顾客收款</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .back-btn {
+            font-size: 18px;
+            margin-right: 20px;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 20px 0;
+        }
+        
+        .amount-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .store-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .store-name {
+            font-size: 16px;
+            color: #333;
+            margin-right: 10px;
+        }
+        
+        .business-tag {
+            background-color: #00c853;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        
+        .amount-display {
+            font-size: 72px;
+            font-weight: 300;
+            color: #333;
+            margin-bottom: 20px;
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+        }
+        
+        .amount-input-hint {
+            color: #999;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+        
+        .saved-amounts {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .saved-amounts-text {
+            color: #999;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .saved-amounts-text::after {
+            content: '〉';
+            margin-left: 8px;
+            font-size: 12px;
+        }
+        
+        .keyboard {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .keyboard-row {
+            display: flex;
+            margin-bottom: 1px;
+        }
+        
+        .keyboard-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .key {
+            flex: 1;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f8f8;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            margin-right: 1px;
+            transition: background-color 0.1s;
+        }
+        
+        .key:last-child {
+            margin-right: 0;
+        }
+        
+        .key:active {
+            background-color: #e0e0e0;
+        }
+        
+        .key.wide {
+            flex: 2;
+        }
+        
+        .key.action {
+            background-color: #00c853;
+            color: white;
+            font-size: 16px;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+        }
+        
+        .key.action:active {
+            background-color: #00a845;
+        }
+        
+        .key.delete {
+            font-size: 20px;
+        }
+        
+        .cursor {
+            animation: blink 1s infinite;
+            color: #00c853;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="back-btn">〈</span>
+        <span class="title">扫码向顾客收款</span>
+    </div>
+    
+    <div class="main-content">
+        <div class="amount-section">
+            <div class="store-info">
+                <span class="store-name">滨海水果店</span>
+                <span class="business-tag">经营</span>
+            </div>
+            
+            <div class="amount-display">
+                ¥<span id="amount">0.00</span><span class="cursor">|</span>
+            </div>
+            
+            <div class="amount-input-hint">点击输入收款备注</div>
+        </div>
+        
+        <div class="saved-amounts">
+            <div class="saved-amounts-text">选择已录入的收款项</div>
+        </div>
+        
+        <div class="keyboard">
+            <div class="keyboard-row">
+                <button class="key" onclick="inputNumber('1')">1</button>
+                <button class="key" onclick="inputNumber('2')">2</button>
+                <button class="key" onclick="inputNumber('3')">3</button>
+                <button class="key delete" onclick="deleteNumber()">×</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key" onclick="inputNumber('4')">4</button>
+                <button class="key" onclick="inputNumber('5')">5</button>
+                <button class="key" onclick="inputNumber('6')">6</button>
+                <button class="key" onclick="inputNumber('+')">+</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key" onclick="inputNumber('7')">7</button>
+                <button class="key" onclick="inputNumber('8')">8</button>
+                <button class="key" onclick="inputNumber('9')">9</button>
+                <button class="key action" rowspan="2" onclick="generateQR()">扫码<br>收款</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key wide" onclick="inputNumber('00')">00</button>
+                <button class="key" onclick="inputNumber('.')">.</button>
+                <button class="key" onclick="inputNumber('0')">0</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key wide" onclick="clearAll()">AC/全部清除</button>
+                <button class="key" onclick="deleteNumber()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAmount = '0.00';
+        let isDecimalMode = false;
+        let decimalCount = 0;
+        
+        function updateDisplay() {
+            document.getElementById('amount').textContent = currentAmount;
+        }
+        
+        function inputNumber(num) {
+            if (num === '.') {
+                if (!isDecimalMode) {
+                    if (currentAmount === '0.00') {
+                        currentAmount = '0.';
+                    } else {
+                        currentAmount = currentAmount.replace('.00', '') + '.';
+                    }
+                    isDecimalMode = true;
+                    decimalCount = 0;
+                }
+            } else if (num === '+') {
+                // 可以在这里添加加法逻辑
+                return;
+            } else {
+                if (currentAmount === '0.00') {
+                    currentAmount = num;
+                    if (num !== '00') {
+                        currentAmount += '.00';
+                    }
+                } else if (isDecimalMode) {
+                    if (decimalCount < 2) {
+                        if (currentAmount.endsWith('.')) {
+                            currentAmount += num;
+                            if (num === '00') {
+                                currentAmount += '0';
+                                decimalCount = 2;
+                            } else {
+                                decimalCount = 1;
+                            }
+                        } else if (decimalCount === 1) {
+                            currentAmount = currentAmount.slice(0, -1) + num;
+                            decimalCount = 2;
+                            isDecimalMode = false;
+                        }
+                    }
+                } else {
+                    let integerPart = currentAmount.replace('.00', '');
+                    if (num === '00') {
+                        integerPart += '00';
+                    } else {
+                        integerPart += num;
+                    }
+                    currentAmount = integerPart + '.00';
+                }
+            }
+            updateDisplay();
+        }
+        
+        function deleteNumber() {
+            if (currentAmount.length > 1) {
+                if (currentAmount.endsWith('.00') && !isDecimalMode) {
+                    // 删除整数部分的最后一位
+                    let integerPart = currentAmount.replace('.00', '');
+                    integerPart = integerPart.slice(0, -1);
+                    if (integerPart === '' || integerPart === '0') {
+                        currentAmount = '0.00';
+                    } else {
+                        currentAmount = integerPart + '.00';
+                    }
+                } else if (isDecimalMode) {
+                    if (currentAmount.endsWith('.')) {
+                        currentAmount = currentAmount.slice(0, -1) + '.00';
+                        isDecimalMode = false;
+                    } else {
+                        currentAmount = currentAmount.slice(0, -1);
+                        decimalCount--;
+                        if (decimalCount === 0) {
+                            currentAmount += '0';
+                            if (currentAmount.indexOf('.') === currentAmount.length - 2) {
+                                currentAmount += '0';
+                                isDecimalMode = false;
+                            }
+                        }
+                    }
+                }
+            } else {
+                currentAmount = '0.00';
+                isDecimalMode = false;
+                decimalCount = 0;
+            }
+            updateDisplay();
+        }
+        
+        function clearAll() {
+            currentAmount = '0.00';
+            isDecimalMode = false;
+            decimalCount = 0;
+            updateDisplay();
+        }
+        
+        function generateQR() {
+            if (currentAmount !== '0.00') {
+                alert(`生成收款码：¥${currentAmount}`);
+            } else {
+                alert('请输入收款金额');
+            }
+        }
+        
+        // 初始化显示
+        updateDisplay();
+    </script>
+</body>
+</html>
