@@ -417,38 +417,191 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            background: #f5f5f5;
         }
 
+        /* 手机界面容器 */
+        .phone-mockup {
+            width: 120px;
+            height: 140px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 模板1 - 按摩预约界面 */
         .template-preview.template-1 {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            background: linear-gradient(135deg, #FFD700 20%, #FFA500 100%);
         }
 
+        .template-preview.template-1 .phone-screen {
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+        }
+
+        .template-preview.template-1 .phone-screen::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            height: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 6px;
+        }
+
+        .template-preview.template-1 .phone-screen::after {
+            content: '💆‍♀️';
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+        }
+
+        /* 模板2 - 简约风格 */
         .template-preview.template-2 {
-            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            background: linear-gradient(135deg, #FF6B6B 20%, #FF8E8E 100%);
         }
 
+        .template-preview.template-2 .phone-screen {
+            background: linear-gradient(to bottom, #ff6b6b, #ff8e8e);
+        }
+
+        .template-preview.template-2 .phone-screen::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            height: 15px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 4px;
+        }
+
+        .template-preview.template-2 .phone-screen::after {
+            content: '✨';
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+        }
+
+        /* 模板3 - 现代养生 */
         .template-preview.template-3 {
-            background: linear-gradient(135deg, #4ECDC4 0%, #6ECFC4 100%);
+            background: linear-gradient(135deg, #4ECDC4 20%, #6ECFC4 100%);
         }
 
+        .template-preview.template-3 .phone-screen {
+            background: linear-gradient(to bottom, #4ecdc4, #6ecfc4);
+        }
+
+        .template-preview.template-3 .phone-screen::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+        }
+
+        .template-preview.template-3 .phone-screen::after {
+            content: '🧘‍♀️';
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
+        }
+
+        /* 模板4 - 高端SPA */
         .template-preview.template-4 {
-            background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);
+            background: linear-gradient(135deg, #A8E6CF 20%, #88D8A3 100%);
+        }
+
+        .template-preview.template-4 .phone-screen {
+            background: linear-gradient(to bottom, #a8e6cf, #88d8a3);
+        }
+
+        .template-preview.template-4 .phone-screen::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            height: 18px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 5px;
+        }
+
+        .template-preview.template-4 .phone-screen::after {
+            content: '💎';
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+        }
+
+        /* 手机界面通用元素 */
+        .ui-header {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            height: 18px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 4px;
+        }
+
+        .ui-content {
+            position: absolute;
+            top: 35px;
+            left: 8px;
+            right: 8px;
+            bottom: 25px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+
+        .ui-button {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            height: 15px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 4px;
         }
 
         .template-preview-content {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
             color: white;
-        }
-
-        .template-preview-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-            display: block;
+            z-index: 2;
         }
 
         .template-preview-text {
-            font-size: 16px;
+            font-size: 12px;
             font-weight: 600;
+            margin-top: 4px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .template-info {
@@ -742,7 +895,7 @@
                     preview: 'template-1', 
                     icon: '💆‍♀️', 
                     features: ['在线预约', '技师选择', '服务套餐', '会员管理'], 
-                    url: 'https://wechat-test-01.vercel.app/massage-booking-html.html' 
+                    url: 'https://moxyzt.github.io/wechatTEST01/massage-booking-html.html' 
                 },
                 { 
                     title: '美业简约风格', 
@@ -1052,8 +1205,7 @@
                 nextBtn.disabled = !state.selections.location;
                 nextBtn.textContent = '下一步';
             } else if (idx === 4) {
-                nextBtn.disabled = false; 
-                nextBtn.textContent = '完成';
+                nextBtn.style.display = 'none'; // 隐藏按钮而不是改文案
                 renderTemplates();
             }
         }
@@ -1076,7 +1228,8 @@
                     showStep(state.currentStep + 1); 
                 }
             } else {
-                alert('已完成选择，您可以点击模板的"免费试用"。');
+                // 最后一步，不显示任何提示
+                return;
             }
         }
 
@@ -1132,12 +1285,16 @@
         function renderTemplates() {
             const box = document.getElementById('templateContainer');
             const list = (templates[state.selections.industry] || templates.default) || [];
-            box.innerHTML = list.map(tpl => `
+            box.innerHTML = list.map((tpl, index) => `
                 <div class="template-card">
                     <div class="template-preview ${tpl.preview}">
+                        <div class="phone-mockup">
+                            <div class="phone-screen">
+                                ${generatePhoneInterface(tpl.preview, tpl.icon)}
+                            </div>
+                        </div>
                         <div class="template-preview-content">
-                            <span class="template-preview-icon">${tpl.icon}</span>
-                            <span class="template-preview-text">${tpl.title}</span>
+                            <div class="template-preview-text">${tpl.title}</div>
                         </div>
                     </div>
                     <div class="template-info">
@@ -1149,6 +1306,65 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // 生成手机界面内容
+        function generatePhoneInterface(previewType, icon) {
+            const interfaces = {
+                'template-1': `
+                    <div class="ui-header"></div>
+                    <div style="position: absolute; top: 35px; left: 8px; right: 8px; text-align: center;">
+                        <div style="font-size: 20px; margin-bottom: 8px;">${icon}</div>
+                        <div style="width: 60px; height: 4px; background: rgba(255,255,255,0.8); margin: 0 auto 6px; border-radius: 2px;"></div>
+                        <div style="width: 40px; height: 4px; background: rgba(255,255,255,0.6); margin: 0 auto 12px; border-radius: 2px;"></div>
+                        <div style="display: flex; gap: 4px; justify-content: center;">
+                            <div style="width: 25px; height: 15px; background: rgba(255,255,255,0.7); border-radius: 3px;"></div>
+                            <div style="width: 25px; height: 15px; background: rgba(255,255,255,0.7); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    <div class="ui-button"></div>
+                `,
+                'template-2': `
+                    <div class="ui-header"></div>
+                    <div style="position: absolute; top: 35px; left: 8px; right: 8px; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 10px;">${icon}</div>
+                        <div style="display: flex; gap: 6px; justify-content: center; margin-bottom: 8px;">
+                            <div style="width: 30px; height: 20px; background: rgba(255,255,255,0.7); border-radius: 4px;"></div>
+                            <div style="width: 30px; height: 20px; background: rgba(255,255,255,0.7); border-radius: 4px;"></div>
+                        </div>
+                        <div style="width: 50px; height: 3px; background: rgba(255,255,255,0.6); margin: 0 auto; border-radius: 2px;"></div>
+                    </div>
+                    <div class="ui-button"></div>
+                `,
+                'template-3': `
+                    <div style="position: absolute; top: 8px; left: 8px; width: 18px; height: 18px; background: rgba(255,255,255,0.9); border-radius: 50%;"></div>
+                    <div style="position: absolute; top: 12px; left: 32px; width: 40px; height: 3px; background: rgba(255,255,255,0.8); border-radius: 2px;"></div>
+                    <div style="position: absolute; top: 40px; left: 8px; right: 8px; text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 8px;">${icon}</div>
+                        <div style="width: 70px; height: 25px; background: rgba(255,255,255,0.7); margin: 0 auto 8px; border-radius: 4px;"></div>
+                        <div style="display: flex; gap: 3px; justify-content: center;">
+                            <div style="width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%;"></div>
+                            <div style="width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%;"></div>
+                            <div style="width: 8px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 50%;"></div>
+                        </div>
+                    </div>
+                    <div class="ui-button"></div>
+                `,
+                'template-4': `
+                    <div class="ui-header"></div>
+                    <div style="position: absolute; top: 8px; right: 8px; width: 15px; height: 15px; background: rgba(255,255,255,0.9); border-radius: 3px;"></div>
+                    <div style="position: absolute; top: 32px; left: 8px; right: 8px; text-align: center;">
+                        <div style="font-size: 16px; margin-bottom: 6px;">${icon}</div>
+                        <div style="width: 55px; height: 3px; background: rgba(255,255,255,0.8); margin: 0 auto 4px; border-radius: 2px;"></div>
+                        <div style="width: 35px; height: 3px; background: rgba(255,255,255,0.6); margin: 0 auto 10px; border-radius: 2px;"></div>
+                        <div style="width: 80px; height: 18px; background: rgba(255,255,255,0.7); margin: 0 auto; border-radius: 4px; position: relative;">
+                            <div style="position: absolute; top: 6px; left: 6px; width: 8px; height: 6px; background: rgba(0,0,0,0.3); border-radius: 1px;"></div>
+                        </div>
+                    </div>
+                    <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; height: 12px; background: linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 100%); border-radius: 3px;"></div>
+                `
+            };
+            return interfaces[previewType] || interfaces['template-1'];
         }
 
         function openTemplate(url) {
