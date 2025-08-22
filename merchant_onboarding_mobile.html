@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商户入驻 - 选择您的经营特征</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 20px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 5px;
+        }
+
+        .progress-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #e5e5e5;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #FFD700;
+            transform: scale(1.3);
+        }
+
+        .progress-bar {
+            height: 2px;
+            background: #f0f0f0;
+            border-radius: 1px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #FFD700;
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 30px 20px 100px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #FFD700;
+            color: #333;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .step-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .step-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .industry-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .industry-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .industry-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.15);
+        }
+
+        .industry-card.selected {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+        }
+
+        .industry-card::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .industry-card.selected::after {
+            background: #FFD700;
+            border-color: #FFD700;
+            box-shadow: inset 0 0 0 3px white;
+        }
+
+        .industry-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .industry-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .industry-subtitle {
+            font-size: 12px;
+            color: #999;
+            line-height: 1.3;
+        }
+
+        .lifecycle-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .lifecycle-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .lifecycle-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+        }
+
+        .lifecycle-card.selected {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.03) 100%);
+        }
+
+        .lifecycle-card::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e5e5;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .lifecycle-card.selected::after {
+            background: #FFD700;
+            border-color: #FFD700;
+            box-shadow: inset 0 0 0 4px white;
+        }
+
+        .lifecycle-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .lifecycle-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-right: 40px;
+        }
+
+        .location-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .location-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .location-card:hover {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.03);
+        }
+
+        .location-card.selected {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.03) 100%);
+        }
+
+        .location-card::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            border: 2px solid #e5e5e5;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .location-card.selected::after {
+            background: #FFD700;
+            border-color: #FFD700;
+            box-shadow: inset 0 0 0 3px white;
+        }
+
+        .location-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .location-info {
+            flex: 1;
+            margin-right: 30px;
+        }
+
+        .location-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .location-description {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .input-section {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .select-field {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            color: #333;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .select-field:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .template-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .template-preview {
+            height: 160px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .template-preview.template-1 {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        }
+
+        .template-preview.template-2 {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+        }
+
+        .template-preview.template-3 {
+            background: linear-gradient(135deg, #4ECDC4 0%, #6ECFC4 100%);
+        }
+
+        .template-preview.template-4 {
+            background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);
+        }
+
+        .template-preview-content {
+            text-align: center;
+            color: white;
+        }
+
+        .template-preview-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .template-preview-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .template-info {
+            padding: 20px;
+        }
+
+        .template-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .template-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .feature-tag {
+            background: #f8f9fa;
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .try-btn {
+            width: 100%;
+            padding: 14px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .try-btn:hover {
+            background: #222;
+            transform: translateY(-1px);
+        }
+
+        .button-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 16px 20px;
+            box-shadow: 0 -2px 20px rgba(0,0,0,0.08);
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #333;
+            color: white;
+        }
+
+        .next-btn:hover:not(:disabled) {
+            background: #222;
+            transform: translateY(-1px);
+        }
+
+        .next-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" id="backBtn">←</button>
+            <div class="header-title" id="headerTitle">选择您的行业</div>
+            <div class="progress-container">
+                <div class="progress-dot active"></div>
+                <div class="progress-dot"></div>
+                <div class="progress-dot"></div>
+                <div class="progress-dot"></div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- 步骤1: 行业选择 -->
+            <div class="step active" id="step1">
+                <div class="step-number">01</div>
+                <div class="step-title">选择您的行业</div>
+                <div class="step-subtitle">请选择您所从事的主要行业类型</div>
+                
+                <div class="industry-grid">
+                    <div class="industry-card" data-value="dining">
+                        <span class="industry-icon">🍽️</span>
+                        <div class="industry-title">餐饮</div>
+                        <div class="industry-subtitle">餐厅·咖啡·小食</div>
+                    </div>
+                    <div class="industry-card" data-value="beauty">
+                        <span class="industry-icon">💅</span>
+                        <div class="industry-title">美业</div>
+                        <div class="industry-subtitle">美发·美甲·按摩</div>
+                    </div>
+                    <div class="industry-card" data-value="retail">
+                        <span class="industry-icon">🛒</span>
+                        <div class="industry-title">零售</div>
+                        <div class="industry-subtitle">便利店·水果·母婴</div>
+                    </div>
+                    <div class="industry-card" data-value="fitness">
+                        <span class="industry-icon">🏋️</span>
+                        <div class="industry-title">健身培训</div>
+                        <div class="industry-subtitle">健身房·教育培训</div>
+                    </div>
+                    <div class="industry-card" data-value="hospitality">
+                        <span class="industry-icon">🏨</span>
+                        <div class="industry-title">酒旅民宿</div>
+                        <div class="industry-subtitle">酒店·景点·活动</div>
+                    </div>
+                    <div class="industry-card" data-value="service">
+                        <span class="industry-icon">🔧</span>
+                        <div class="industry-title">到家服务</div>
+                        <div class="industry-subtitle">家政·维修·保洁</div>
+                    </div>
+                    <div class="industry-card" data-value="medical">
+                        <span class="industry-icon">🏥</span>
+                        <div class="industry-title">医疗健康</div>
+                        <div class="industry-subtitle">诊所·药店·体检</div>
+                    </div>
+                    <div class="industry-card" data-value="digital">
+                        <span class="industry-icon">📱</span>
+                        <div class="industry-title">数码维修</div>
+                        <div class="industry-subtitle">手机·电脑·其他</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤2: 经营状态 -->
+            <div class="step" id="step2">
+                <div class="step-number">02</div>
+                <div class="step-title">您的经营状态</div>
+                <div class="step-subtitle">请选择最符合您当前情况的选项</div>
+                
+                <div class="lifecycle-options">
+                    <div class="lifecycle-card" data-value="existing">
+                        <div class="lifecycle-title">我已有店</div>
+                        <div class="lifecycle-description">已经在经营中，希望提升数字化管理能力和客户体验</div>
+                    </div>
+                    
+                    <div class="lifecycle-card" data-value="newbie">
+                        <div class="lifecycle-title">我是新手</div>
+                        <div class="lifecycle-description">刚开始创业，需要全方位的经营指导和模板支持</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤3: 经营详情（仅已有店） -->
+            <div class="step" id="step3">
+                <div class="step-number">03</div>
+                <div class="step-title">经营详情</div>
+                <div class="step-subtitle">请提供您店铺的基本信息</div>
+                
+                <div class="section-title">经营地点</div>
+                <div class="location-grid">
+                    <div class="location-card" data-value="street">
+                        <span class="location-icon">🏪</span>
+                        <div class="location-info">
+                            <div class="location-title">商圈街边</div>
+                            <div class="location-description">人流量大，适合展示型营销</div>
+                        </div>
+                    </div>
+                    <div class="location-card" data-value="community">
+                        <span class="location-icon">🏘️</span>
+                        <div class="location-info">
+                            <div class="location-title">社区内</div>
+                            <div class="location-description">邻里熟悉，注重口碑和复购</div>
+                        </div>
+                    </div>
+                    <div class="location-card" data-value="office">
+                        <span class="location-icon">🏢</span>
+                        <div class="location-info">
+                            <div class="location-title">写字楼园区</div>
+                            <div class="location-description">上班族为主，注重便捷高效</div>
+                        </div>
+                    </div>
+                    <div class="location-card" data-value="school">
+                        <span class="location-icon">🎓</span>
+                        <div class="location-info">
+                            <div class="location-title">学校/医院周边</div>
+                            <div class="location-description">特定人群，需要专业服务</div>
+                        </div>
+                    </div>
+                    <div class="location-card" data-value="scenic">
+                        <span class="location-icon">🗾</span>
+                        <div class="location-info">
+                            <div class="location-title">旅游景区</div>
+                            <div class="location-description">游客为主，重视体验和纪念</div>
+                        </div>
+                    </div>
+                    <div class="location-card" data-value="mall">
+                        <span class="location-icon">🏬</span>
+                        <div class="location-info">
+                            <div class="location-title">商场内</div>
+                            <div class="location-description">环境舒适，客流稳定</div>
+                        </div>
+                    </div>
+                    <div class="location-card" data-value="night">
+                        <span class="location-icon">🌙</span>
+                        <div class="location-info">
+                            <div class="location-title">夜市/流动摊位</div>
+                            <div class="location-description">灵活经营，重视移动推广</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">商品与客单</div>
+                <div class="input-section">
+                    <label class="input-label">主要商品/服务种类数量 (SKU)</label>
+                    <select class="select-field" id="skuCount">
+                        <option value="">请选择</option>
+                        <option value="1-10">1-10种</option>
+                        <option value="11-50">11-50种</option>
+                        <option value="51-200">51-200种</option>
+                        <option value="200+">200种以上</option>
+                    </select>
+                </div>
+                
+                <div class="input-section">
+                    <label class="input-label">平均客单价</label>
+                    <select class="select-field" id="avgPrice">
+                        <option value="">请选择</option>
+                        <option value="0-50">50元以下</option>
+                        <option value="51-200">51-200元</option>
+                        <option value="201-500">201-500元</option>
+                        <option value="500+">500元以上</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 步骤4: 模板推荐 -->
+            <div class="step" id="step4">
+                <div class="step-number">04</div>
+                <div class="step-title">为您推荐的模板</div>
+                <div class="step-subtitle">根据您的选择，我们为您准备了4个精选模板</div>
+                
+                <div id="templateContainer">
+                    <!-- 模板将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="next-btn" id="nextBtn" disabled>下一步</button>
+        </div>
+    </div>
+
+    <script>
+        // ---- 状态 ----
+        const state = {
+            currentStep: 1,
+            totalSteps: 4,
+            selections: { 
+                industry: '', 
+                lifecycle: '', 
+                location: '', 
+                sku: '', 
+                avgPrice: '' 
+            }
+        };
+
+        // ---- 模板数据 ----
+        const templates = {
+            beauty: [
+                { 
+                    title: '专业按摩预约系统', 
+                    preview: 'template-1', 
+                    icon: '💆‍♀️', 
+                    features: ['在线预约', '技师选择', '服务套餐', '会员管理'], 
+                    url: 'https://wechat-test-01.vercel.app/massage-booking-html.html' 
+                },
+                { 
+                    title: '美业简约风格', 
+                    preview: 'template-2', 
+                    icon: '✨', 
+                    features: ['服务展示', '价格透明', '客户评价', '联系方式'], 
+                    url: '#' 
+                },
+                { 
+                    title: '现代养生会所', 
+                    preview: 'template-3', 
+                    icon: '🧘‍♀️', 
+                    features: ['会员系统', '积分兑换', '套餐推荐', '健康档案'], 
+                    url: '#' 
+                },
+                { 
+                    title: '高端SPA体验', 
+                    preview: 'template-4', 
+                    icon: '💎', 
+                    features: ['VIP预约', '个性定制', '专属顾问', '礼品卡'], 
+                    url: '#' 
+                }
+            ],
+            dining: [
+                { 
+                    title: '餐厅预约点餐', 
+                    preview: 'template-1', 
+                    icon: '🍽️', 
+                    features: ['在线预约', '菜单点餐', '外卖配送', '会员积分'], 
+                    url: '#' 
+                },
+                { 
+                    title: '咖啡店小清新', 
+                    preview: 'template-2', 
+                    icon: '☕', 
+                    features: ['产品展示', '预约取餐', '会员优惠', '社交分享'], 
+                    url: '#' 
+                },
+                { 
+                    title: '快餐连锁风格', 
+                    preview: 'template-3', 
+                    icon: '🍔', 
+                    features: ['快速点餐', '营养信息', '配送跟踪', '促销活动'], 
+                    url: '#' 
+                },
+                { 
+                    title: '精品餐厅', 
+                    preview: 'template-4', 
+                    icon: '🥂', 
+                    features: ['私人定制', '主厨推荐', 'VIP服务', '品酒搭配'], 
+                    url: '#' 
+                }
+            ],
+            retail: [
+                { 
+                    title: '便利店管理', 
+                    preview: 'template-1', 
+                    icon: '🏪', 
+                    features: ['商品管理', '库存提醒', '快速结账', '会员折扣'], 
+                    url: '#' 
+                },
+                { 
+                    title: '新鲜水果店', 
+                    preview: 'template-2', 
+                    icon: '🍎', 
+                    features: ['当日特价', '新鲜保证', '配送服务', '果蔬搭配'], 
+                    url: '#' 
+                },
+                { 
+                    title: '母婴用品店', 
+                    preview: 'template-3', 
+                    icon: '👶', 
+                    features: ['安全认证', '年龄分类', '育儿指导', '会员福利'], 
+                    url: '#' 
+                },
+                { 
+                    title: '宠物用品', 
+                    preview: 'template-4', 
+                    icon: '🐕', 
+                    features: ['宠物档案', '用品推荐', '护理服务', '社区交流'], 
+                    url: '#' 
+                }
+            ],
+            fitness: [
+                { 
+                    title: '健身房管理', 
+                    preview: 'template-1', 
+                    icon: '🏋️‍♂️', 
+                    features: ['课程预约', '教练安排', '会员管理', '健身计划'], 
+                    url: '#' 
+                },
+                { 
+                    title: '瑜伽工作室', 
+                    preview: 'template-2', 
+                    icon: '🧘‍♀️', 
+                    features: ['课程表', '在线预约', '冥想指导', '会员社区'], 
+                    url: '#' 
+                },
+                { 
+                    title: '教育培训中心', 
+                    preview: 'template-3', 
+                    icon: '📚', 
+                    features: ['课程报名', '学员管理', '进度跟踪', '证书发放'], 
+                    url: '#' 
+                },
+                { 
+                    title: '私人教练', 
+                    preview: 'template-4', 
+                    icon: '💪', 
+                    features: ['1对1预约', '训练记录', '营养建议', '效果评估'], 
+                    url: '#' 
+                }
+            ],
+            hospitality: [
+                { 
+                    title: '酒店民宿预订', 
+                    preview: 'template-1', 
+                    icon: '🏨', 
+                    features: ['房间预订', '价格日历', '客户评价', '服务介绍'], 
+                    url: '#' 
+                },
+                { 
+                    title: '景点门票', 
+                    preview: 'template-2', 
+                    icon: '🎫', 
+                    features: ['门票购买', '导览服务', '活动安排', '游客指南'], 
+                    url: '#' 
+                },
+                { 
+                    title: '活动策划', 
+                    preview: 'template-3', 
+                    icon: '🎉', 
+                    features: ['活动展示', '在线报名', '支付系统', '参与者管理'], 
+                    url: '#' 
+                },
+                { 
+                    title: '旅行社', 
+                    preview: 'template-4', 
+                    icon: '✈️', 
+                    features: ['行程定制', '团队预订', '导游安排', '攻略分享'], 
+                    url: '#' 
+                }
+            ],
+            service: [
+                { 
+                    title: '到家服务', 
+                    preview: 'template-1', 
+                    icon: '🏠', 
+                    features: ['服务预约', '师傅派单', '实时跟踪', '服务评价'], 
+                    url: '#' 
+                },
+                { 
+                    title: '保洁家政', 
+                    preview: 'template-2', 
+                    icon: '🧹', 
+                    features: ['定期清洁', '深度保洁', '人员认证', '保险保障'], 
+                    url: '#' 
+                },
+                { 
+                    title: '维修服务', 
+                    preview: 'template-3', 
+                    icon: '🔧', 
+                    features: ['故障报修', '师傅接单', '配件购买', '质保服务'], 
+                    url: '#' 
+                },
+                { 
+                    title: '安装服务', 
+                    preview: 'template-4', 
+                    icon: '⚙️', 
+                    features: ['上门安装', '专业工具', '安全检测', '售后保障'], 
+                    url: '#' 
+                }
+            ],
+            medical: [
+                { 
+                    title: '诊所预约', 
+                    preview: 'template-1', 
+                    icon: '🏥', 
+                    features: ['医生预约', '病历管理', '检查报告', '用药提醒'], 
+                    url: '#' 
+                },
+                { 
+                    title: '药店配送', 
+                    preview: 'template-2', 
+                    icon: '💊', 
+                    features: ['药品搜索', '处方上传', '送药上门', '用药咨询'], 
+                    url: '#' 
+                },
+                { 
+                    title: '体检中心', 
+                    preview: 'template-3', 
+                    icon: '🩺', 
+                    features: ['套餐选择', '体检预约', '报告查询', '健康建议'], 
+                    url: '#' 
+                },
+                { 
+                    title: '牙科诊所', 
+                    preview: 'template-4', 
+                    icon: '🦷', 
+                    features: ['牙医预约', '治疗方案', '费用估算', '口腔护理'], 
+                    url: '#' 
+                }
+            ],
+            digital: [
+                { 
+                    title: '手机维修', 
+                    preview: 'template-1', 
+                    icon: '📱', 
+                    features: ['故障检测', '维修报价', '配件更换', '数据恢复'], 
+                    url: '#' 
+                },
+                { 
+                    title: '电脑服务', 
+                    preview: 'template-2', 
+                    icon: '💻', 
+                    features: ['系统重装', '硬件升级', '数据备份', '病毒清理'], 
+                    url: '#' 
+                },
+                { 
+                    title: '电子产品维修', 
+                    preview: 'template-3', 
+                    icon: '🔌', 
+                    features: ['家电维修', '配件销售', '保修服务', '技术支持'], 
+                    url: '#' 
+                },
+                { 
+                    title: '数码咨询', 
+                    preview: 'template-4', 
+                    icon: '⚡', 
+                    features: ['产品推荐', '技术咨询', '安装调试', '使用培训'], 
+                    url: '#' 
+                }
+            ],
+            default: [
+                { 
+                    title: '通用商务模板', 
+                    preview: 'template-1', 
+                    icon: '💼', 
+                    features: ['产品展示', '在线咨询', '预约服务', '客户管理'], 
+                    url: '#' 
+                },
+                { 
+                    title: '简约现代风格', 
+                    preview: 'template-2', 
+                    icon: '🎨', 
+                    features: ['简洁设计', '快速加载', '移动优化', 'SEO友好'], 
+                    url: '#' 
+                },
+                { 
+                    title: '功能全面版', 
+                    preview: 'template-3', 
+                    icon: '⚡', 
+                    features: ['多功能集成', '数据分析', '营销工具', '客服系统'], 
+                    url: '#' 
+                },
+                { 
+                    title: '专业定制版', 
+                    preview: 'template-4', 
+                    icon: '🎯', 
+                    features: ['个性定制', '专属服务', '技术支持', '持续优化'], 
+                    url: '#' 
+                }
+            ]
+        };
+
+        // ---- DOM 缓存 ----
+        const steps = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4')
+        ];
+        const headerTitle = document.getElementById('headerTitle');
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const progressDots = Array.from(document.querySelectorAll('.progress-dot'));
+        const progressFill = document.getElementById('progressFill');
+
+        // ---- 工具函数 ----
+        function showStep(idx) {
+            state.currentStep = idx;
+            steps.forEach((el, i) => el.classList.toggle('active', i === idx - 1));
+
+            const titles = ['选择您的行业', '您的经营状态', '经营详情', '为您推荐的模板'];
+            headerTitle.textContent = titles[idx - 1] || '商户入驻';
+            backBtn.style.display = idx > 1 ? 'flex' : 'none';
+
+            progressDots.forEach((dot, i) => dot.classList.toggle('active', i < idx));
+            const pct = (idx - 1) / (state.totalSteps - 1) * 100;
+            progressFill.style.width = pct + '%';
+
+            // 下一步按钮状态与文案
+            if (idx === 1) { 
+                nextBtn.disabled = !state.selections.industry; 
+                nextBtn.textContent = '下一步'; 
+            }
+            else if (idx === 2) { 
+                nextBtn.disabled = !state.selections.lifecycle; 
+                nextBtn.textContent = '下一步'; 
+            }
+            else if (idx === 3) {
+                // 新手直接跳第四步
+                if (state.selections.lifecycle === 'newbie') { 
+                    showStep(4); 
+                    return; 
+                }
+                nextBtn.disabled = !state.selections.location;
+                nextBtn.textContent = '下一步';
+            } else if (idx === 4) {
+                nextBtn.disabled = false; 
+                nextBtn.textContent = '完成';
+                renderTemplates();
+            }
+        }
+
+        function goBack() {
+            if (state.currentStep > 1) showStep(state.currentStep - 1);
+        }
+
+        function goNext() {
+            if (state.currentStep === 1 && !state.selections.industry) return alert('请先选择行业');
+            if (state.currentStep === 2 && !state.selections.lifecycle) return alert('请选择经营状态');
+            if (state.currentStep === 3 && state.selections.lifecycle === 'existing' && !state.selections.location) {
+                return alert('请选择经营地点');
+            }
+
+            if (state.currentStep < state.totalSteps) {
+                if (state.currentStep === 2 && state.selections.lifecycle === 'newbie') { 
+                    showStep(4); 
+                } else { 
+                    showStep(state.currentStep + 1); 
+                }
+            } else {
+                alert('已完成选择，您可以点击模板的"免费试用"。');
+            }
+        }
+
+        // 单选卡片绑定
+        function bindCardSingle(containerSelector, cardSelector, onPick) {
+            const wrap = document.querySelector(containerSelector);
+            if (!wrap) return;
+            const cards = wrap.querySelectorAll(cardSelector);
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    cards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    onPick && onPick(card.dataset.value);
+                });
+            });
+        }
+
+        // 绑定：行业 -> 启用下一步
+        bindCardSingle('#step1', '.industry-card', val => {
+            state.selections.industry = val;
+            nextBtn.disabled = false;
+        });
+
+        // 绑定：经营状态 -> 启用下一步
+        bindCardSingle('#step2', '.lifecycle-card', val => {
+            state.selections.lifecycle = val;
+            nextBtn.disabled = false;
+        });
+
+        // 绑定：地点（仅已有店会用到）
+        bindCardSingle('#step3', '.location-card', val => {
+            state.selections.location = val;
+            if (state.selections.lifecycle === 'existing') { 
+                nextBtn.disabled = false; 
+            }
+        });
+
+        // 绑定下拉：SKU、客单价
+        const skuSelect = document.getElementById('skuCount');
+        const priceSelect = document.getElementById('avgPrice');
+        if (skuSelect) { 
+            skuSelect.addEventListener('change', e => { 
+                state.selections.sku = e.target.value; 
+            }); 
+        }
+        if (priceSelect) { 
+            priceSelect.addEventListener('change', e => { 
+                state.selections.avgPrice = e.target.value; 
+            }); 
+        }
+
+        // 模板渲染
+        function renderTemplates() {
+            const box = document.getElementById('templateContainer');
+            const list = (templates[state.selections.industry] || templates.default) || [];
+            box.innerHTML = list.map(tpl => `
+                <div class="template-card">
+                    <div class="template-preview ${tpl.preview}">
+                        <div class="template-preview-content">
+                            <span class="template-preview-icon">${tpl.icon}</span>
+                            <span class="template-preview-text">${tpl.title}</span>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <div class="template-title">${tpl.title}</div>
+                        <div class="template-features">
+                            ${tpl.features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
+                        </div>
+                        <button class="try-btn" onclick="openTemplate('${tpl.url}')">免费试用</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openTemplate(url) {
+            if (!url || url === '#') { 
+                alert('此模板正在开发中，敬请期待！'); 
+                return; 
+            }
+            window.open(url, '_blank');
+        }
+
+        // 事件绑定
+        nextBtn.addEventListener('click', goNext);
+        backBtn.addEventListener('click', goBack);
+
+        // 初始化
+        showStep(1);
+    </script>
+</body>
+</html>
