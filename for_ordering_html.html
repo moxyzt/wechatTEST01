@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐厅点单系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            max-width: 448px;
+            margin: 0 auto;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // 状态管理
+        let state = {
+            view: 'menu',
+            selectedCategory: '早上用',
+            cart: [],
+            showOrderDetail: false
+        };
+
+        // 商品数据
+        const menuData = {
+            '早上用': [
+                { name: '茶叶蛋', price: 1.50 },
+                { name: '肉包子', price: 3.00 },
+                { name: '素包子', price: 2.00 },
+                { name: '玉米', price: 1.00 },
+                { name: '豆浆', price: 1.00 }
+            ],
+            '烟': [
+                { name: '中华烟', price: 55.00 },
+                { name: '芙蓉王（蓝）', price: 23.00 },
+                { name: '芙蓉王（硬红）', price: 25.00 },
+                { name: '利群（蓝）', price: 16.00 },
+                { name: '利群（软红）', price: 21.00 },
+                { name: '黄鹤楼', price: 32.50 },
+                { name: '软中华', price: 70.00 },
+                { name: '红塔山', price: 12.00 },
+                { name: '玉溪', price: 18.00 }
+            ],
+            '饮料': [
+                { name: '可口可乐', price: 3.00 },
+                { name: '雪碧', price: 3.00 },
+                { name: '冰红茶', price: 3.50 },
+                { name: '绿茶', price: 3.50 },
+                { name: '橙汁', price: 4.00 },
+                { name: '矿泉水', price: 2.00 }
+            ],
+            '调料': [
+                { name: '老干妈', price: 8.50 },
+                { name: '酱油', price: 6.00 },
+                { name: '醋', price: 5.00 },
+                { name: '盐', price: 2.50 },
+                { name: '白糖', price: 4.00 },
+                { name: '味精', price: 3.50 }
+            ],
+            '零食': [
+                { name: '薯片', price: 6.00 },
+                { name: '饼干', price: 5.00 },
+                { name: '巧克力', price: 8.00 },
+                { name: '瓜子', price: 4.50 },
+                { name: '花生', price: 5.50 },
+                { name: '牛肉干', price: 15.00 }
+            ],
+            '水果': [
+                { name: '苹果', price: 6.00 },
+                { name: '香蕉', price: 4.50 },
+                { name: '橙子', price: 5.00 },
+                { name: '梨', price: 4.00 }
+            ],
+            '菜': [
+                { name: '白菜', price: 3.00 },
+                { name: '土豆', price: 2.50 },
+                { name: '西红柿', price: 4.00 },
+                { name: '黄瓜', price: 3.50 }
+            ],
+            '牛奶': [
+                { name: '纯牛奶', price: 5.00 },
+                { name: '酸奶', price: 4.50 },
+                { name: '豆奶', price: 4.00 }
+            ],
+            '方便面': [
+                { name: '红烧牛肉面', price: 4.50 },
+                { name: '老坛酸菜面', price: 4.50 },
+                { name: '香辣牛肉面', price: 5.00 }
+            ],
+            '矿泉水': [],
+            '雪糕': [
+                { name: '可爱多', price: 5.00 },
+                { name: '梦龙', price: 8.00 },
+                { name: '冰工厂', price: 3.50 }
+            ],
+            '其他': []
+        };
+
+        const categories = ['烟', '饮料', '调料', '零食', '水果', '菜', '牛奶', '方便面', '矿泉水', '雪糕', '其他'];
+
+        // 工具函数
+        function addToCart(item) {
+            const existingItem = state.cart.find(i => i.name === item.name);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                state.cart.push({ ...item, quantity: 1 });
+            }
+            render();
+        }
+
+        function updateQuantity(itemName, delta) {
+            state.cart = state.cart.map(item => {
+                if (item.name === itemName) {
+                    item.quantity += delta;
+                }
+                return item;
+            }).filter(item => item.quantity > 0);
+            render();
+        }
+
+        function getTotalPrice() {
+            return state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
+        }
+
+        function getTotalItems() {
+            return state.cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        function getItemQuantity(itemName) {
+            const item = state.cart.find(i => i.name === itemName);
+            return item ? item.quantity : 0;
+        }
+
+        // SVG 图标
+        const icons = {
+            chevronLeft: '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+            search: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M13 13l3 3"/></svg>',
+            plus: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v12M2 8h12"/></svg>',
+            minus: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8h12"/></svg>',
+            x: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l8 8M14 6l-8 8"/></svg>'
+        };
+
+        // 渲染函数
+        function renderMenuView() {
+            let productsList = '';
+            
+            Object.entries(menuData).forEach(([category, items]) => {
+                if (items.length === 0) return;
+                
+                let productsHtml = '';
+                items.forEach(item => {
+                    const quantity = getItemQuantity(item.name);
+                    const isSelected = quantity > 0;
+                    
+                    productsHtml += `
+                        <div class="rounded-lg p-3 relative min-h-24 ${isSelected ? 'bg-green-50' : 'bg-white'}">
+                            <div class="text-sm font-medium mb-1">${item.name}</div>
+                            <div class="text-sm mb-8 ${isSelected ? 'text-green-500' : 'text-gray-900'}">
+                                ¥${item.price.toFixed(2)}
+                            </div>
+                            ${isSelected ? `
+                                <div class="absolute bottom-3 right-3 flex items-center gap-2">
+                                    <button class="w-6 h-6 bg-white border border-green-500 rounded-full flex items-center justify-center" onclick="updateQuantity('${item.name}', -1)">
+                                        ${icons.minus.replace('currentColor', '#22C55E')}
+                                    </button>
+                                    <span class="text-sm font-medium w-4 text-center">${quantity}</span>
+                                    <button class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center" onclick="updateQuantity('${item.name}', 1)">
+                                        ${icons.plus.replace('currentColor', 'white')}
+                                    </button>
+                                </div>
+                            ` : `
+                                <button class="absolute bottom-3 right-3 w-6 h-6 bg-black rounded-full flex items-center justify-center" onclick='addToCart(${JSON.stringify(item)})'>
+                                    ${icons.plus.replace('width="16" height="16"', 'width="16" height="16"').replace('currentColor', 'white')}
+                                </button>
+                            `}
+                        </div>
+                    `;
+                });
+                
+                productsList += `
+                    <div class="mb-6">
+                        <div class="text-sm font-medium text-gray-900 mb-3">${category}</div>
+                        <div class="grid grid-cols-2 gap-3">
+                            ${productsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="h-screen bg-gray-50 flex flex-col">
+                    <div class="bg-white">
+                        <div class="flex justify-between items-center px-6 pt-3 pb-2">
+                            <div class="text-base font-semibold">9:41</div>
+                            <div class="flex items-center gap-1">
+                                <div class="text-xs">····</div>
+                                <div class="text-xs">📶</div>
+                                <div class="text-xs">🔋</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center px-4 py-4">
+                            <div class="w-6 h-6">${icons.chevronLeft}</div>
+                            <div class="flex gap-12">
+                                <div class="text-base font-medium">为顾客点单</div>
+                                <div class="text-base text-gray-400">语音点单</div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <div class="bg-white border border-gray-200 rounded-lg px-3 py-2.5 flex items-center gap-2">
+                                ${icons.search}
+                                <input type="text" placeholder="搜商品" class="bg-transparent text-sm text-gray-400 outline-none flex-1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex overflow-hidden">
+                        <div class="w-20 bg-white overflow-y-auto flex-shrink-0">
+                            <div class="py-4 text-center text-sm cursor-pointer ${state.selectedCategory === '早上用' ? 'bg-gray-50 text-gray-900 font-medium border-l-2 border-green-500' : 'text-gray-600'}" onclick="state.selectedCategory='早上用'; render();">早上用</div>
+                            ${categories.map(cat => `
+                                <div class="py-4 text-center text-sm cursor-pointer ${state.selectedCategory === cat ? 'bg-gray-50 text-gray-900 font-medium border-l-2 border-green-500' : 'text-gray-600'}" onclick="state.selectedCategory='${cat}'; render();">${cat}</div>
+                            `).join('')}
+                        </div>
+                        <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-32">
+                            ${productsList}
+                        </div>
+                    </div>
+                    ${state.cart.length > 0 ? `
+                        <div class="absolute bottom-0 left-0 right-0 bg-white border-t px-4 py-4 flex items-center gap-4">
+                            <div class="flex-1 cursor-pointer" onclick="state.showOrderDetail=true; render();">
+                                <div class="text-lg font-bold">合计 ¥${getTotalPrice()}</div>
+                                <div class="text-xs text-gray-400">已选择${getTotalItems()}个付款项 ›</div>
+                            </div>
+                            <button class="bg-green-500 text-white px-8 py-3 rounded-lg text-base font-medium" onclick="state.view='checkout'; render();">结账</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderOrderDetailModal() {
+            if (!state.showOrderDetail) return '';
+
+            const groupedCart = {};
+            state.cart.forEach(item => {
+                Object.entries(menuData).forEach(([category, items]) => {
+                    if (items.find(i => i.name === item.name)) {
+                        if (!groupedCart[category]) groupedCart[category] = [];
+                        groupedCart[category].push(item);
+                    }
+                });
+            });
+
+            let cartItems = '';
+            Object.entries(groupedCart).forEach(([category, items]) => {
+                cartItems += `
+                    <div class="mb-5">
+                        <div class="text-xs text-gray-400 mb-3">${category}</div>
+                        ${items.map(item => `
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <div class="text-base font-medium mb-1">${item.name}</div>
+                                    <div class="text-sm text-green-500">¥${item.price.toFixed(2)}</div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button class="w-8 h-8 border-2 border-green-500 rounded-full flex items-center justify-center" onclick="updateQuantity('${item.name}', -1)">
+                                        ${icons.minus.replace('currentColor', '#22C55E')}
+                                    </button>
+                                    <div class="text-lg w-8 text-center">${item.quantity}</div>
+                                    <button class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center" onclick="updateQuantity('${item.name}', 1)">
+                                        ${icons.plus.replace('currentColor', 'white')}
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+
+            return `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-end z-50" style="max-width: 448px; margin: 0 auto;">
+                    <div class="bg-white w-full h-full flex flex-col">
+                        <div class="bg-white">
+                            <div class="flex justify-between items-center px-6 pt-3 pb-2">
+                                <div class="text-base font-semibold">9:41</div>
+                                <div class="flex items-center gap-1">
+                                    <div class="text-xs">····</div>
+                                    <div class="text-xs">📶</div>
+                                    <div class="text-xs">🔋</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center px-4 py-4">
+                                <div class="w-6 h-6 cursor-pointer" onclick="state.showOrderDetail=false; render();">${icons.chevronLeft}</div>
+                                <div class="flex gap-12">
+                                    <div class="text-base font-medium">为顾客点单</div>
+                                    <div class="text-base text-gray-400">语音点单</div>
+                                </div>
+                            </div>
+                            <div class="px-4 pb-4">
+                                <div class="bg-white border border-gray-200 rounded-lg px-3 py-2.5 flex items-center gap-2">
+                                    ${icons.search}
+                                    <input type="text" placeholder="搜商品" class="bg-transparent text-sm text-gray-400 outline-none flex-1">
+                                </div>
+                            </div>
+                            <div class="px-4 pb-3 flex items-center gap-6 border-b">
+                                <div class="text-sm text-green-500 font-medium border-b-2 border-green-500 pb-2">单上</div>
+                                <div class="text-sm text-gray-900 pb-2">单上外</div>
+                                <div class="text-sm text-green-500 ml-auto">查看数据</div>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto px-4 py-4 bg-white">
+                            ${cartItems}
+                        </div>
+                        <div class="bg-white border-t px-4 py-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="text-lg font-bold">合计 ¥${getTotalPrice()}</div>
+                                <div class="text-sm text-gray-400">已选择${getTotalItems()}件商品 ›</div>
+                            </div>
+                            <button class="w-full bg-green-500 text-white py-3.5 rounded-lg text-base font-medium" onclick="state.showOrderDetail=false; render();">结账</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCheckoutView() {
+            return `
+                <div class="h-screen bg-gray-50 flex flex-col">
+                    <div class="bg-white">
+                        <div class="flex justify-between items-center px-6 pt-3 pb-2">
+                            <div class="text-base font-semibold">9:41</div>
+                            <div class="flex items-center gap-1">
+                                <div class="text-xs">····</div>
+                                <div class="text-xs">📶</div>
+                                <div class="text-xs">🔋</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center px-4 py-4">
+                            <div class="w-6 h-6 cursor-pointer" onclick="state.view='menu'; render();">${icons.chevronLeft}</div>
+                            <div class="ml-4 text-base font-medium">等待顾客付款</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto">
+                        <div class="bg-white px-5 py-5 mb-3">
+                            <div class="text-xs text-gray-400 mb-2">待收款</div>
+                            <div class="text-5xl font-bold mb-4">¥${getTotalPrice()}</div>
+                            <div class="border-t border-dashed border-gray-300 my-4"></div>
+                            <div class="text-sm text-gray-400 flex items-center cursor-pointer" onclick="state.showOrderDetail=true; render();">
+                                <span>共${getTotalItems()}个付款项</span>
+                                <span class="ml-1">›</span>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                ${state.cart.map(item => `
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-gray-700">${item.name}</span>
+                                        <span class="text-gray-400">×${item.quantity}</span>
+                                        <span class="text-gray-900">¥${(item.price * item.quantity).toFixed(2)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="mt-4 text-sm text-blue-500 cursor-pointer">添加备注</div>
+                        </div>
+                    </div>
+                    <div class="bg-white border-t px-4 py-4">
+                        <div class="flex gap-3">
+                            <button class="flex-1 border border-gray-300 py-3 rounded-lg text-base">打印小票</button>
+                            <button class="flex-1 bg-green-500 text-white py-3 rounded-lg text-base" onclick="state.view='payment'; render();">立即收款</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPaymentView() {
+            return `
+                <div class="h-screen bg-yellow-400 flex flex-col">
+                    <div class="bg-yellow-400">
+                        <div class="flex justify-between items-center px-6 pt-3 pb-2">
+                            <div class="text-base font-semibold">9:41</div>
+                            <div class="flex items-center gap-1">
+                                <div class="text-xs">····</div>
+                                <div class="text-xs">📶</div>
+                                <div class="text-xs">🔋</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center px-4 py-4">
+                            <div class="w-6 h-6 cursor-pointer" onclick="state.view='checkout'; render();">${icons.chevronLeft}</div>
+                            <div class="ml-4 text-base font-medium">为顾客点单</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center px-6">
+                        <div class="bg-white rounded-3xl p-8 w-full shadow-xl">
+                            <div class="flex justify-between items-center mb-6">
+                                <div class="text-xs text-gray-500">滨海水果店</div>
+                                <div class="bg-green-500 text-white text-xs px-3 py-1 rounded font-medium">收款</div>
+                            </div>
+                            <div class="text-center mb-2">
+                                <div class="text-5xl font-bold">¥${getTotalPrice()}</div>
+                            </div>
+                            <div class="text-center text-sm text-gray-400 mb-6">共${getTotalItems()}个付款项</div>
+                            <div class="bg-white rounded-2xl p-4 mb-4 flex items-center justify-center">
+                                <svg viewBox="0 0 200 200" class="w-64 h-64">
+                                    <rect width="200" height="200" fill="white"/>
+                                    ${Array(15).fill(0).map((_, i) => 
+                                        Array(15).fill(0).map((_, j) => 
+                                            Math.random() > 0.5 ? `<rect x="${10 + j * 12}" y="${10 + i * 12}" width="10" height="10" fill="black"/>` : ''
+                                        ).join('')
+                                    ).join('')}
+                                    <circle cx="100" cy="100" r="20" fill="#22C55E"/>
+                                    <circle cx="100" cy="100" r="14" fill="white"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-8">
+                        <button class="w-full bg-white bg-opacity-20 text-white py-3.5 rounded-lg text-base font-medium">扫顾客付款码收款</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            let html = '';
+
+            if (state.view === 'menu') {
+                html = renderMenuView();
+            } else if (state.view === 'checkout') {
+                html = renderCheckoutView();
+            } else if (state.view === 'payment') {
+                html = renderPaymentView();
+            }
+
+            html += renderOrderDetailModal();
+            app.innerHTML = html;
+        }
+
+        // 初始渲染
+        render();
+    </script>
+</body>
+</html>
